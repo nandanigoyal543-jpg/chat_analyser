@@ -1,15 +1,13 @@
 import re
 import pandas as pd
-import nltk
 import emoji
-from nltk.corpus import stopwords
-from nltk.sentiment import SentimentIntensityAnalyzer
-nltk.download('vader_lexicon')
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from wordcloud import WordCloud
 from urlextract import URLExtract
 
 extractor = URLExtract()
+
 
 
 def fetch_stats(selected_user, df):
@@ -484,8 +482,7 @@ def weekly_timeline(selected_user, df):
         df = df[df["user"] == selected_user]
 
     return df["dayname"].value_counts()
-def normalize_text(text):
-    return re.sub(r'(.)\1{2,}', r'\1\1', text)
+
 EMOJI_SCORE = {
     "😂": 2,
     "🤣": 3,
