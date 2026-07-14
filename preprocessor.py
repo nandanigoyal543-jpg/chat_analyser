@@ -33,14 +33,7 @@ def preprocess(data):
     df['dayname']=df['date'].dt.day_name()
     df["hour"] = df["date"].dt.hour
     df["minute"] = df["date"].dt.minute
-    name_mapping = {
-    'Dadi Waale☕': 'Vedant',
-    'Namodi': 'Namrita😚',
-    'Potty 🤢': 'Riddhi🤢',
-    'Aadi Bhaiya🫂': 'Aadi Bhaiya🌞'
-    }
 
-    df['user'] = df['user'].replace(name_mapping)
     
     return df
 

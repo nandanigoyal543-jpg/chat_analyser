@@ -9,11 +9,36 @@ if uploaded_file is not None:
     bytes_data=uploaded_file.getvalue()
     data=bytes_data.decode("utf-8")
     df=preprocessor.preprocess(data)
-    
+
+    if st.sidebar.checkbox("Rename Participants"):
+        # Create initial list
+        users = df['user'].unique().tolist()
+
+        if 'group_notification' in users:
+            users.remove('group_notification')
+        users.sort()
+    # Create rename mapping
+        rename_mapping = {}
+
+        for user in users:
+            new_name = st.sidebar.text_input(
+                f"Rename '{user}'",
+                value=user
+                )
+            rename_mapping[user] = " ".join(new_name.split())
+    # Apply renaming
+        df['user'] = (
+            df['user']
+            .replace(rename_mapping)
+            .astype(str)
+            .str.strip()          # remove leading/trailing spaces
+            .str.replace(r'\s+', ' ', regex=True)   # remove double spaces
+            )
     user_list=df['user'].unique().tolist()
     user_list.remove('group_notification')
     user_list.sort()
     user_list.insert(0,"Overall")
+
 
     selected_user=st.sidebar.selectbox("show analysis wrt ", user_list)
     if st.sidebar.button("Show Analysis"):
@@ -79,5 +104,36 @@ if uploaded_file is not None:
 
     ax.bar(busy_day.index, busy_day.values, color='red')
     ax.set_xticklabels(busy_day.index, rotation=90)
+    st.pyplot(fig)
+    
+    st.title("Sentiment Analysis")
+    df_sentiment = helper.sentiment_analysis(selected_user, df)
+    sentiment_count = df_sentiment['sentiment'].value_counts()
+
+    fig, ax = plt.subplots(figsize=(6,4))
+
+    ax.bar(
+        sentiment_count.index,
+        sentiment_count.values,
+        color=['green','gray','red']
+        )
+
+    ax.set_xlabel("Sentiment")
+    ax.set_ylabel("Number of Messages")
+    ax.set_title("Sentiment Distribution")
+
+    st.pyplot(fig)
+    sentiment_count = df_sentiment['sentiment'].value_counts()
+
+    fig, ax = plt.subplots(figsize=(6,6))
+
+    ax.pie(
+        sentiment_count.values,
+        labels=sentiment_count.index,
+        autopct='%1.1f%%',
+        startangle=90
+        )
+
+    ax.set_title("Sentiment Distribution")
 
     st.pyplot(fig)
